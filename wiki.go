@@ -1,85 +1,39 @@
 package main
 
 import (
-	"html/template"
+    "encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
-	"regexp"
 )
 
-type Page struct {
-	Title string
-	Body  []byte
-}
-
-func (p *Page) save() error {
-	filename := p.Title + ".txt"
-	return ioutil.WriteFile(filename, p.Body, 0600)
-}
-
-func loadPage(title string) (*Page, error) {
-	filename := title + ".txt"
-	body, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return nil, err
-	}
-	return &Page{Title: title, Body: body}, nil
-}
-
-func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
-	p, err := loadPage(title)
-	if err != nil {
-		http.Redirect(w, r, "/edit/"+title, http.StatusFound)
-		return
-	}
-	renderTemplate(w, "view", p)
-}
-
-func editHandler(w http.ResponseWriter, r *http.Request, title string) {
-	p, err := loadPage(title)
-	if err != nil {
-		p = &Page{Title: title}
-	}
-	renderTemplate(w, "edit", p)
-}
-
-func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
-	body := r.FormValue("body")
-	p := &Page{Title: title, Body: []byte(body)}
-	err := p.save()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	http.Redirect(w, r, "/view/"+title, http.StatusFound)
-}
-
-var templates = template.Must(template.ParseFiles("edit.html", "view.html"))
-
-func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
-	err := templates.ExecuteTemplate(w, tmpl+".html", p)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
-
-var validPath = regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9]+)$")
-
-func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		m := validPath.FindStringSubmatch(r.URL.Path)
-		if m == nil {
-			http.NotFound(w, r)
-			return
-		}
-		fn(w, r, m[2])
-	}
+type MyJsonName struct {
+	Markers []struct {
+		Fee        string  `json:"fee"`
+		Latitude   float64 `json:"latitude"`
+		Longitude  float64 `json:"longitude"`
+		Wheelchair string  `json:"wheelchair"`
+	} `json:"markers"`
 }
 
 func main() {
-	http.HandleFunc("/view/", makeHandler(viewHandler))
-	http.HandleFunc("/edit/", makeHandler(editHandler))
-	http.HandleFunc("/save/", makeHandler(saveHandler))
-
-	http.ListenAndServe(":8080", nil)
+	 var s MyJsonName
+  resp, err := http.Get("http://amenimaps.com/amenimapi.php?amenity=toilet&mylat=51.50784&mylon=-0.127324&mode=json&name=rara_pirates&key=773afa6b5638d5ce24e12e9acbe30bb2")
+	//Fill the record with the data from the JSON
+	if err != nil {
+		// An error occurred while converting our JSON to an object
+		fmt.Printf("%s", err)
+	}
+	defer resp.Body.Close()
+	contents, err:= ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Printf("%s", err)
+	}
+	
+    err = json.Unmarshal(contents, &s)
+    if err != nil {
+        fmt.Printf("%s", err)
+    }
+    fmt.Println(s)
 }
+		
