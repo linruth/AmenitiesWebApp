@@ -35,5 +35,66 @@ func main() {
         fmt.Printf("%s", err)
     }
     fmt.Println(s)
+    
+    http.HandleFunc("/view", handler)
+    http.ListenAndServe(":8080", nil)
+    //http.HandleFunc("/showimage", showimage)
 }
+
+
+func handler(w http.ResponseWriter, r *http.Request) {
+        fmt.Fprint(w, rootForm)
+}
+
+const rootForm = `
+  <!DOCTYPE html>
+    <!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      #map {
+        width: 500px;
+        height: 400px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+
+    var positionLat;
+var positionLong;
+var map;
+
+window.onload = function() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(initMap);
+
+    } else {
+        console.log("not using geolocation");
+    };
+};
+/*
+//gets your lat and long
+function showPosition(position) {
+	positionLat = position.coords.latitude;
+	positionLong = position.coords.longitude;
+   // x.innerHTML = "Latitude: " + position.coords.latitude + 
+    //"<br>Longitude: " + position.coords.longitude; 
+	console.log(positionLat);
+	//console.log(positionLong);
+};
+*/
+
+     function initMap(position) {
+	positionLat = position.coords.latitude;
+	positionLong = position.coords.longitude;
+  map = new google.maps.Map(document.getElementById('map'), {center: {lat: parseFloat(positionLat), lng: parseFloat(positionLong)},zoom: 15});
+}
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?callback=initMap"
+        async defer></script>
+  </body>
+</html>
+`
 		
