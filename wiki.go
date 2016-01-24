@@ -37,6 +37,7 @@ func main() {
     fmt.Println(s)
     
     http.HandleFunc("/view", handler)
+    //http.HandleFunc("/showimage",showimage)
     http.ListenAndServe(":8080", nil)
     //http.HandleFunc("/showimage", showimage)
 }
@@ -59,16 +60,16 @@ const rootForm = `
   </head>
   <body>
     <div id="map"></div>
+    <div id = "box"></div>
     <script>
-
     var positionLat;
 var positionLong;
 var map;
-
 window.onload = function() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(initMap);
-
+        setTimeout(showLatLong,800);
+        setTimeout(createForm,800);
     } else {
         console.log("not using geolocation");
     };
@@ -84,7 +85,6 @@ function showPosition(position) {
 	//console.log(positionLong);
 };
 */
-
      function initMap(position) {
 	positionLat = position.coords.latitude;
 	positionLong = position.coords.longitude;
@@ -97,10 +97,117 @@ function showPosition(position) {
     title: 'Hello World!'
   });
 }
+
+function showLatLong(){
+document.getElementById("box").innerHTML = "Latitude and Longitude";
+};
+
+function createForm(){
+var f = document.createElement("form");
+f.setAttribute('method',"post");
+f.setAttribute('action',"/showimage");
+
+var i = document.createElement("input"); //input element, text
+i.setAttribute('type',"text");
+i.setAttribute('name',"positionLat");
+i.setAttribute('value',positionLat);
+
+var j = document.createElement("input"); //input element, text
+j.setAttribute('type',"text");
+j.setAttribute('name',"positionLong");
+j.setAttribute('value',positionLong);
+
+var s = document.createElement("input"); //input element, Submit button
+s.setAttribute('type',"submit");
+s.setAttribute('value',"Submit");
+
+f.appendChild(i);
+f.appendChild(j);
+f.appendChild(s);
+
+//and some more input elements here
+//and dont forget to add a submit button
+
+document.getElementsByTagName('body')[0].appendChild(f);
+};
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?callback=initMap"
         async defer></script>
   </body>
 </html>
 `
+
+
+//var upperTemplate = template.Must(template.New("showimage").Parse(upperTemplateHTML))
+
+//func showimage(w http.ResponseWriter, r *http.Request) {
+        // Sample address "1600 Amphitheatre Parkway, Mountain View, CA"
+        //latitude := r.FormValue("positionLat")
+        //longitude := r.FormValue("positionLong");
+    //}
+
+	// QueryEscape escapes the addr string so
+	// it can be safely placed inside a URL query
+	// safeAddr := url.QueryEscape(addr)
+        //safeAddr := url.QueryEscape(addr)
+        //fullUrl := fmt.Sprintf("http://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=%s", safeAddr)
+
+        //c := appengine.NewContext(r)
+        //client := urlfetch.Client(c)
+    
+       // resp, err := client.Get(fullUrl)
+        //if err != nil {
+                //http.Error(w, err.Error(), http.StatusInternalServerError)
+                //return
+        //}
+    
+	// Callers should close resp.Body
+	// when done reading from it
+	// Defer the closing of the body
+	//defer resp.Body.Close()
+
+	// Read the content into a byte array
+	//body, dataReadErr := ioutil.ReadAll(resp.Body)
+	//if dataReadErr != nil {
+		//panic(dataReadErr)
+	//}/
+
+        //res := make(map[string][]map[string]map[string]map[string]interface{}, 0)
+
+	// We will be using the Unmarshal function
+	// to transform our JSON bytes into the
+	// appropriate structure.
+	// The Unmarshal function accepts a byte array
+	// and a reference to the object which shall be
+	// filled with the JSON data (this is simplifying,
+	// it actually accepts an interface)
+	//json.Unmarshal(body, &res)
+        
+	//lat, _ := res["results"][0]["geometry"]["location"]["lat"]
+	//lng, _ := res["results"][0]["geometry"]["location"]["lng"]
+	
+	// %.13f is used to convert float64 to a string
+	//queryUrl := fmt.Sprintf("http://maps.googleapis.com/maps/api/streetview?sensor=false&size=600x300&location=%.13f,%.13f", lat, lng)
+
+        //tempErr := upperTemplate.Execute(w, queryUrl)
+        //if tempErr != nil {
+	       // http.Error(w, tempErr.Error(), http.StatusInternalServerError)
+        //}
+//}
+
+// const upperTemplateHTML = ` 
+// <!DOCTYPE html>
+//   <html>
+//     <head>
+//       <meta charset="utf-8">
+//       <title>Display Image</title>
+//       <link rel="stylesheet" href="/stylesheets/goview.css">              
+//     </head>
+//     <body>
+//       <h1><img style="margin-left: 120px;" src="images/gsv.png" alt="Street View" />GoView</h1>
+//       <h2>Image at your Address</h2>
+//       <img style="margin-left: 120px;" src="{{html .}}" alt="Image" />
+//     </body>
+//   </html>
+// `
 		
