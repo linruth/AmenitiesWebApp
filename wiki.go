@@ -48,7 +48,6 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 const rootForm = `
   <!DOCTYPE html>
-    <!DOCTYPE html>
 <html>
   <head>
     <style>
@@ -89,7 +88,14 @@ function showPosition(position) {
      function initMap(position) {
 	positionLat = position.coords.latitude;
 	positionLong = position.coords.longitude;
+	 var myLatLng = {lat: positionLat, lng: positionLong};
   map = new google.maps.Map(document.getElementById('map'), {center: {lat: parseFloat(positionLat), lng: parseFloat(positionLong)},zoom: 15});
+  
+  var marker = new google.maps.Marker({
+    position: myLatLng,
+    map: map,
+    title: 'Hello World!'
+  });
 }
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?callback=initMap"
